@@ -14,16 +14,15 @@
 
 package org.openmrs.module.kenyacore.test;
 
-import org.junit.Ignore;
 import org.openmrs.module.metadatadeploy.bundle.AbstractMetadataBundle;
 import org.springframework.stereotype.Component;
 
-import static org.openmrs.module.metadatadeploy.bundle.CoreConstructors.*;
+import static org.openmrs.module.metadatadeploy.bundle.CoreConstructors.encounterType;
+import static org.openmrs.module.metadatadeploy.bundle.CoreConstructors.form;
 
 /**
  * Metadata for unit tests
  */
-@Ignore
 @Component
 public class TestMetadata extends AbstractMetadataBundle {
 

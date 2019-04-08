@@ -14,7 +14,6 @@
 
 package org.openmrs.module.kenyacore.test;
 
-import org.junit.Ignore;
 import org.openmrs.calculation.BaseCalculation;
 import org.openmrs.calculation.parameter.SimpleParameterDefinition;
 import org.openmrs.calculation.patient.PatientCalculation;
@@ -28,7 +27,6 @@ import java.util.Map;
 /**
  * Dummy calculation for testing that returns true for everybody and has parameters
  */
-@Ignore
 public class TestCalculationWithParams extends BaseCalculation implements PatientCalculation {
 
 	public TestCalculationWithParams() {
