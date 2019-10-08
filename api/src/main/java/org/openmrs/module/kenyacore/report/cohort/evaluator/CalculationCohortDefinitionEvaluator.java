@@ -27,6 +27,7 @@ import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.evaluator.CohortDefinitionEvaluator;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
+import org.openmrs.module.reportingcompatibility.service.ReportingCompatibilityService;
 
 import java.util.Date;
 import java.util.Set;
@@ -78,7 +79,7 @@ public class CalculationCohortDefinitionEvaluator implements CohortDefinitionEva
 
 		Cohort cohort = context.getBaseCohort();
 		if (cohort == null) {
-			cohort = Context.getPatientSetService().getAllPatients();
+			cohort = Context.getService(ReportingCompatibilityService.class).getAllPatients();
 		}
 
 		return pcs.evaluate(cohort.getMemberIds(), cd.getCalculation(), cd.getCalculationParameters(), calcContext);

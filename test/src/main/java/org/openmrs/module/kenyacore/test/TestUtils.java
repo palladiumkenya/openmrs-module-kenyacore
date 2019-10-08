@@ -153,7 +153,7 @@ public class TestUtils {
 	public static Encounter saveEncounter(Patient patient, EncounterType type, Form form, Date date, Obs... obss) {
 		Encounter encounter = new Encounter();
 		encounter.setPatient(patient);
-		encounter.setProvider(Context.getUserService().getUser(1)); // Super user
+		//encounter.setProvider(Context.getUserService().getUser(1)); // Super user
 		encounter.setLocation(Context.getLocationService().getLocation(1)); // Unknown Location
 		encounter.setEncounterType(type);
 		encounter.setForm(form);
