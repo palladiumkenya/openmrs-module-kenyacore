@@ -386,4 +386,22 @@ public class RegimenMappingUtils {
         }
         return null;
     }
+
+    /**
+     * Helper method for getting a config entry by nascop code
+     * @param drugName
+     * @return
+     */
+    public static JSONObject getDrugEntryByDrugName(String drugName, JSONArray config) {
+
+        if (config != null) {
+            for (int i = 0; i < config.size(); i++) {
+                JSONObject o = (JSONObject) config.get(i);
+                if (o.get("drug_name").toString().equals(drugName)) {
+                    return o;
+                }
+            }
+        }
+        return null;
+    }
 }
