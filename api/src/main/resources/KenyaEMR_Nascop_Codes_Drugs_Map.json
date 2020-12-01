@@ -272,5 +272,18 @@
       "AT": "",
       "CT": ""
     }
+  },
+  {
+    "drug_name": "RAL/3TC/DRV/RTV/TDF",
+    "conceptRef": "c6372744-9e06-40cf-83e5-c794c985b6bf",
+    "nascop_codes": {
+      "AF": "",
+      "AS": "",
+      "CF": "",
+      "CS": "",
+      "PMTCT": "",
+      "AT": "AT2E",
+      "CT": ""
+    }
   }
 ]
