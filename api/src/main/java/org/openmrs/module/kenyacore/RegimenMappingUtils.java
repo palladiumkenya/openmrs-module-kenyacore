@@ -404,4 +404,30 @@ public class RegimenMappingUtils {
         }
         return null;
     }
+
+    /**
+     * Returns nascop code for non-standard regimen based on regimen line
+     * @param regimenLine
+     * @return
+     */
+    public static String getNonStandardCodeFromRegimenLine(String regimenLine) {
+        if (StringUtils.isBlank(regimenLine)) {
+            return null;
+        }
+
+        if (regimenLine.equals("AF")) {
+            return "AF5X";
+        } else if (regimenLine.equals("AS")) {
+            return "AS6X";
+        } else if (regimenLine.equals("AT")) {
+            return "AT2X";
+        } else if (regimenLine.equals("CF")) {
+            return "CF5X";
+        } else if (regimenLine.equals("CS")) {
+            return "CS4X";
+        } else if (regimenLine.equals("CT")) {
+            return "CT3X";
+        }
+        return null;
+    }
 }
