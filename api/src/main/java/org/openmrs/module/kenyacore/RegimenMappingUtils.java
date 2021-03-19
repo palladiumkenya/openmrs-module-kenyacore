@@ -261,7 +261,6 @@ public class RegimenMappingUtils {
      * @throws IOException
      */
     public static String getRegimenNameFromRegimensXMLString(String conceptRef, String regimenJson) throws IOException {
-        System.out.println("Reading from bundled json mapping");
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode conf = (ArrayNode) mapper.readTree(regimenJson);
 
