@@ -15,6 +15,7 @@
 package org.openmrs.module.kenyacore.report.cohort.evaluator;
 
 import org.openmrs.Cohort;
+import org.openmrs.CohortMembership;
 import org.openmrs.annotation.Handler;
 import org.openmrs.api.context.Context;
 import org.openmrs.calculation.patient.PatientCalculationContext;
@@ -30,6 +31,7 @@ import org.openmrs.module.reporting.evaluation.EvaluationException;
 import org.openmrs.module.reportingcompatibility.service.ReportingCompatibilityService;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -78,10 +80,21 @@ public class CalculationCohortDefinitionEvaluator implements CohortDefinitionEva
 		calcContext.setNow(onDate);
 
 		Cohort cohort = context.getBaseCohort();
+		Set<Integer> cohortPatients = new HashSet<Integer>();
+
 		if (cohort == null) {
-			cohort = Context.getService(ReportingCompatibilityService.class).getAllPatients();
+			org.openmrs.cohort.Cohort compatibilityCohort = Context.getService(ReportingCompatibilityService.class).getAllPatients();
+			cohortPatients = compatibilityCohort.getMemberIds();
+
+		} else {
+
+			for (CohortMembership membership : cohort.getMemberships() ) {
+				cohortPatients.add(membership.getPatientId());
+
+			}
+
 		}
 
-		return pcs.evaluate(cohort.getMemberIds(), cd.getCalculation(), cd.getCalculationParameters(), calcContext);
+		return pcs.evaluate(cohortPatients, cd.getCalculation(), cd.getCalculationParameters(), calcContext);
 	}
 }
