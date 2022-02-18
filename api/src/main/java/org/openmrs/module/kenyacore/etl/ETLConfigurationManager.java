@@ -17,13 +17,16 @@ package org.openmrs.module.kenyacore.etl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.GlobalProperty;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.kenyacore.ContentManager;
 import org.openmrs.module.kenyacore.CoreUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * ETLConfiguration manager
@@ -35,10 +38,14 @@ public class ETLConfigurationManager implements ContentManager {
 	protected static final Log log = LogFactory.getLog(ETLConfigurationManager.class);
 
 
-	private List<String> ddlProcedures = new ArrayList<String>();
-	private List<String> dmlProcedures = new ArrayList<String>();
-	private List<String> incrementalUpdatesProcedures = new ArrayList<String>();
-	private List<String> datatoolDatabaseProcedures = new ArrayList<String>();
+	private List<String> coreDDlProcedures = new ArrayList<String>();
+	private List<String> addonDDlProcedures = new ArrayList<String>();
+	private List<String> coreDMLProcedures = new ArrayList<String>();
+	private List<String> addonDMLProcedures = new ArrayList<String>();
+	private List<String> coreIncrementalUpdatesProcedures = new ArrayList<String>();
+	private List<String> addonIncrementalUpdatesProcedures = new ArrayList<String>();
+	private List<String> coreDatatoolDatabaseProcedures = new ArrayList<String>();
+	private List<String> addonDatatoolDatabaseProcedures = new ArrayList<String>();
 
 
 	/**
@@ -55,57 +62,169 @@ public class ETLConfigurationManager implements ContentManager {
 	@Override
 	public synchronized void refresh() {
 
-		ddlProcedures.clear();
-		dmlProcedures.clear();
-		incrementalUpdatesProcedures.clear();
-		datatoolDatabaseProcedures.clear();
+		String recreateEtlsOnStartupConfig = Context.getAdministrationService().getGlobalProperty("kenyaemr.reacreate_etls_on_startup");
+
+		if (recreateEtlsOnStartupConfig != null && recreateEtlsOnStartupConfig.equalsIgnoreCase("no")) {
+			System.out.println("Skipping recreation of ETL tables. Please set the value of kenyaemr.reacreate_etls_on_startup global property to yes to enable recreation on startup");
+			return;
+		}
+
+		coreDDlProcedures.clear();
+		addonDDlProcedures.clear();
+		coreDMLProcedures.clear();
+		addonDMLProcedures.clear();
+		coreIncrementalUpdatesProcedures.clear();
+		addonIncrementalUpdatesProcedures.clear();
+		coreDatatoolDatabaseProcedures.clear();
+		addonDatatoolDatabaseProcedures.clear();
 
 		System.out.println("Preparing to execute ETL extensions ....");
 
 		// Process ETLConfiguration beans
 		for (ETLConfiguration configuration : Context.getRegisteredComponents(ETLConfiguration.class)) {
 			// Register DDL procedures
-			ddlProcedures.addAll(configuration.getDdlProcedures());
+			int moduleSource = configuration.getSourceModule();
+			Set<String> ddlProcedures = configuration.getDdlProcedures();
+			Set<String> dmlProcedures = configuration.getDmlProcedures();
+			Set<String> incrementalUpdatesProcedures = configuration.getIncrementalUpdatesProcedures();
+			Set<String> datatoolDbProcedures = configuration.getDataToolDbProcedures();
 
-			// Register DDL procedures
-			dmlProcedures.addAll(configuration.getDmlProcedures());
+			if (ddlProcedures != null && !ddlProcedures.isEmpty()) {
+				for (String spName : configuration.getDdlProcedures()) {
+					if (moduleSource == 1) {
+						coreDDlProcedures.add(spName);
+					} else {
+						addonDDlProcedures.add(spName);
+					}
+				}
+			}
 
-			incrementalUpdatesProcedures.addAll(configuration.getIncrementalUpdatesProcedures());
+			if (dmlProcedures != null && !dmlProcedures.isEmpty()) {
+				for (String spName : configuration.getDmlProcedures()) {
+					if (moduleSource == 1) {
+						coreDMLProcedures.add(spName);
+					} else {
+						addonDMLProcedures.add(spName);
+					}
+				}
+			}
 
-			datatoolDatabaseProcedures.addAll(configuration.getDataToolDbProcedures());	
+			if (incrementalUpdatesProcedures != null && !incrementalUpdatesProcedures.isEmpty()) {
+				for (String spName : configuration.getIncrementalUpdatesProcedures()) {
+					if (moduleSource == 1) {
+						coreIncrementalUpdatesProcedures.add(spName);
+					} else {
+						coreIncrementalUpdatesProcedures.add(spName);
+					}
+				}
+			}
+
+			if (datatoolDbProcedures != null && !datatoolDbProcedures.isEmpty()) {
+				for (String spName : configuration.getDataToolDbProcedures()) {
+					if (moduleSource == 1) {
+						coreDatatoolDatabaseProcedures.add(spName);
+					} else {
+						addonDatatoolDatabaseProcedures.add(spName);
+					}
+				}
+			}
+
 		}
 
-		ddlProcedures = CoreUtils.merge(ddlProcedures); // Sorts and removes duplicates
-		dmlProcedures = CoreUtils.merge(dmlProcedures);
-		incrementalUpdatesProcedures = CoreUtils.merge(incrementalUpdatesProcedures);
-		datatoolDatabaseProcedures = CoreUtils.merge(datatoolDatabaseProcedures);
+		//TODO: provide a way of sorting/removing duplicates
+		System.out.println("------------------------------------------------------------------------------");
+		System.out.println("Core modules DDLs: " + StringUtils.join(coreDDlProcedures, ","));
+		System.out.println("Addon modules DDLs: " + StringUtils.join(addonDDlProcedures, ","));
+		System.out.println("==============================================================================");
 
-		System.out.println("DDLs: " + StringUtils.join(ddlProcedures, ","));
+		ETLConfigurationProcessorOnStartup.executeETLRoutines(coreDDlProcedures);
+		if (!addonDDlProcedures.isEmpty()) {
+			ETLConfigurationProcessorOnStartup.executeETLRoutines(addonDDlProcedures);
+		}
+		System.out.println("------------------------------------------------------------------------------");
+		System.out.println("Core modules DMLs: " + StringUtils.join(coreDMLProcedures, ","));
+		System.out.println("Addon modules DMLs: " + StringUtils.join(addonDMLProcedures, ","));
+		System.out.println("==============================================================================");
 
-		ETLConfigurationProcessorOnStartup.executeETLRoutines(ddlProcedures);
-		System.out.println("DMLs: " + StringUtils.join(dmlProcedures, ","));
-		ETLConfigurationProcessorOnStartup.executeETLRoutines(dmlProcedures);
+		ETLConfigurationProcessorOnStartup.executeETLRoutines(coreDMLProcedures);
+		if (!addonDMLProcedures.isEmpty()) {
+			ETLConfigurationProcessorOnStartup.executeETLRoutines(addonDMLProcedures);
+		}
 
-		System.out.println("Datatools: " + StringUtils.join(datatoolDatabaseProcedures, ","));
-		ETLConfigurationProcessorOnStartup.executeETLRoutines(datatoolDatabaseProcedures);
+		System.out.println("------------------------------------------------------------------------------");
+		System.out.println("Core modules Datatools: " + StringUtils.join(coreDatatoolDatabaseProcedures, ","));
+		System.out.println("Addon modules Datatools: " + StringUtils.join(addonDatatoolDatabaseProcedures, ","));
+		System.out.println("==============================================================================");
 
+		ETLConfigurationProcessorOnStartup.executeETLRoutines(coreDatatoolDatabaseProcedures);
+
+		if (!addonDatatoolDatabaseProcedures.isEmpty()) {
+			ETLConfigurationProcessorOnStartup.executeETLRoutines(addonDatatoolDatabaseProcedures);
+		}
+		System.out.println("------------------------------------------------------------------------------");
 	}
 
-	public List<String> getDDLProcedures() {
-		return ddlProcedures;
+	public List<String> getCoreDDlProcedures() {
+		return coreDDlProcedures;
 	}
 
-	public List<String> getDMLProcedures() {
-		return dmlProcedures;
+	public void setCoreDDlProcedures(List<String> coreDDlProcedures) {
+		this.coreDDlProcedures = coreDDlProcedures;
 	}
 
-	public List<String> getInrementalUpdatesProcedures() {
-		return incrementalUpdatesProcedures;
+	public List<String> getAddonDDlProcedures() {
+		return addonDDlProcedures;
 	}
 
-	public List<String> getDatatoolDatabaseProcedures() {
-		return datatoolDatabaseProcedures;
+	public void setAddonDDlProcedures(List<String> addonDDlProcedures) {
+		this.addonDDlProcedures = addonDDlProcedures;
 	}
 
-	
+	public List<String> getCoreDMLProcedures() {
+		return coreDMLProcedures;
+	}
+
+	public void setCoreDMLProcedures(List<String> coreDMLProcedures) {
+		this.coreDMLProcedures = coreDMLProcedures;
+	}
+
+	public List<String> getAddonDMLProcedures() {
+		return addonDMLProcedures;
+	}
+
+	public void setAddonDMLProcedures(List<String> addonDMLProcedures) {
+		this.addonDMLProcedures = addonDMLProcedures;
+	}
+
+	public List<String> getCoreIncrementalUpdatesProcedures() {
+		return coreIncrementalUpdatesProcedures;
+	}
+
+	public void setCoreIncrementalUpdatesProcedures(List<String> coreIncrementalUpdatesProcedures) {
+		this.coreIncrementalUpdatesProcedures = coreIncrementalUpdatesProcedures;
+	}
+
+	public List<String> getAddonIncrementalUpdatesProcedures() {
+		return addonIncrementalUpdatesProcedures;
+	}
+
+	public void setAddonIncrementalUpdatesProcedures(List<String> addonIncrementalUpdatesProcedures) {
+		this.addonIncrementalUpdatesProcedures = addonIncrementalUpdatesProcedures;
+	}
+
+	public List<String> getCoreDatatoolDatabaseProcedures() {
+		return coreDatatoolDatabaseProcedures;
+	}
+
+	public void setCoreDatatoolDatabaseProcedures(List<String> coreDatatoolDatabaseProcedures) {
+		this.coreDatatoolDatabaseProcedures = coreDatatoolDatabaseProcedures;
+	}
+
+	public List<String> getAddonDatatoolDatabaseProcedures() {
+		return addonDatatoolDatabaseProcedures;
+	}
+
+	public void setAddonDatatoolDatabaseProcedures(List<String> addonDatatoolDatabaseProcedures) {
+		this.addonDatatoolDatabaseProcedures = addonDatatoolDatabaseProcedures;
+	}
 }

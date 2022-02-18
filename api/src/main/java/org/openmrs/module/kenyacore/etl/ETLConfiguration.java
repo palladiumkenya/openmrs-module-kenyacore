@@ -24,6 +24,7 @@ import org.openmrs.module.kenyacore.AbstractContentConfiguration;
  */
 public class ETLConfiguration extends AbstractContentConfiguration {
 
+	private Integer sourceModule = 2; // use 1 for core KenyaEMR module, and 2 for add-on module. The default is 2 so that add-on module devs don't set it
 	private Set<String> ddlProcedures;
 	private Set<String> dmlProcedures;
 	private Set<String> incrementalUpdatesProcedures;
@@ -111,4 +112,11 @@ public class ETLConfiguration extends AbstractContentConfiguration {
 		this.dataToolDbProcedures = dataToolDbProcedures;
 	}
 
+	public Integer getSourceModule() {
+		return sourceModule;
+	}
+
+	public void setSourceModule(Integer sourceModule) {
+		this.sourceModule = sourceModule;
+	}
 }
