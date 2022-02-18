@@ -11,7 +11,9 @@ import java.util.List;
 public class ETLConfigurationProcessorOnStartup {
 
     public static SimpleObject executeETLRoutines(final List<String> etlStoredProcedures) {
-
+        if (etlStoredProcedures.isEmpty()) {
+            return null;
+        }
         final SimpleObject sampleTypeObject = new SimpleObject();
         Context.openSession();
 
