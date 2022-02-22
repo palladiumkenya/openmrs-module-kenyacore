@@ -22,7 +22,6 @@ public class ETLConfigurationProcessorOnStartup {
             System.out.println("Currently executing query: " + sb);
             Context.getAdministrationService().executeSQL(sb.toString(), false);
         }
-       // Context.closeSession();
         return sampleTypeObject;
     }
 }
