@@ -16,7 +16,7 @@ package org.openmrs.module.kenyacore.report.cohort.evaluator;
 
 import org.openmrs.Cohort;
 import org.openmrs.annotation.Handler;
-import org.openmrs.api.PatientSetService;
+import org.openmrs.module.reporting.cohort.definition.BaseObsCohortDefinition.TimeModifier;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.kenyacore.report.cohort.definition.DateObsValueBetweenCohortDefinition;
 import org.openmrs.module.reporting.cohort.EvaluatedCohort;
@@ -40,13 +40,14 @@ public class DateObsValueBetweenCohortDefinitionEvaluator implements CohortDefin
 	public EvaluatedCohort evaluate(CohortDefinition cohortDefinition, EvaluationContext context) {
 		DateObsValueBetweenCohortDefinition cd = (DateObsValueBetweenCohortDefinition) cohortDefinition;
 
-		Cohort c = Context.getService(CohortQueryService.class).getPatientsHavingRangedObs(
-				PatientSetService.TimeModifier.ANY, cd.getQuestion(), cd.getGroupingConcept(),
+		/*Cohort c = Context.getService(CohortQueryService.class).getPatientsHavingRangedObs(
+				TimeModifier.ANY, cd.getQuestion(), cd.getGroupingConcept(),
 				null, null,
 				cd.getLocationList(), cd.getEncounterTypeList(),
 				RangeComparator.GREATER_EQUAL, cd.getOnOrAfter(),
-				RangeComparator.LESS_EQUAL, cd.getOnOrBefore());
+				RangeComparator.LESS_EQUAL, cd.getOnOrBefore());*/
 
-		return new EvaluatedCohort(c, cohortDefinition, context);
+		//return new EvaluatedCohort(c, cohortDefinition, context);
+		return null;
 	}
 }

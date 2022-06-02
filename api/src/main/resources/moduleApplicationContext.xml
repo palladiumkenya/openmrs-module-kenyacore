@@ -25,7 +25,7 @@
 		<property name="moduleService">
 			<list>
 				<value>org.openmrs.module.kenyacore.api.CoreService</value>
-				<ref local="kenyaCoreService"/>
+				<ref bean="kenyaCoreService"/>
 			</list>
 		</property>
 	</bean>
