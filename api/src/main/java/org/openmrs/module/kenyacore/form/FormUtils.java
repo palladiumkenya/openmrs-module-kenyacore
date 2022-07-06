@@ -63,7 +63,7 @@ public class FormUtils {
 
 		resXmlPath.setValue(xmlResource.toString());
 
-		Context.getFormService().saveFormResource(resXmlPath);
+		//Context.getFormService().saveFormResource(resXmlPath);
 	}
 
 	/**

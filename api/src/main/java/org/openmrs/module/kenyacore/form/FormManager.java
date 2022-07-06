@@ -91,26 +91,26 @@ public class FormManager implements ContentManager {
 		Collections.sort(descriptors);
 
 		// Process form descriptor beans
-		for (FormDescriptor formDescriptor : descriptors) {
-			Form form = Context.getFormService().getFormByUuid(formDescriptor.getTargetUuid());
+		// for (FormDescriptor formDescriptor : descriptors) {
+		// 	Form form = Context.getFormService().getFormByUuid(formDescriptor.getTargetUuid());
 
-			if (form == null) {
-				throw new RuntimeException("No such form with UUID: " + formDescriptor.getTargetUuid());
-			}
+		// 	if (form == null) {
+		// 		throw new RuntimeException("No such form with UUID: " + formDescriptor.getTargetUuid());
+		// 	}
 
-			if (forms.containsKey(formDescriptor.getTargetUuid())) {
-				throw new RuntimeException("Form " + formDescriptor.getTargetUuid() + " already registered");
-			}
+		// 	if (forms.containsKey(formDescriptor.getTargetUuid())) {
+		// 		throw new RuntimeException("Form " + formDescriptor.getTargetUuid() + " already registered");
+		// 	}
 
-			forms.put(form.getUuid(), formDescriptor);
+		// 	forms.put(form.getUuid(), formDescriptor);
 
-			// Attach form resource if descriptor specifies one
-			if (formDescriptor.getHtmlform() != null) {
-				FormUtils.setFormXmlResource(form, formDescriptor.getHtmlform());
-			}
+		// 	// Attach form resource if descriptor specifies one
+		// 	if (formDescriptor.getHtmlform() != null) {
+		// 		FormUtils.setFormXmlResource(form, formDescriptor.getHtmlform());
+		// 	}
 
-			log.debug("Registered form '" + form.getName() + "' (" + form.getUuid() + ")");
-		}
+		// 	log.debug("Registered form '" + form.getName() + "' (" + form.getUuid() + ")");
+		// }
 
 		// Process form configuration beans
 		for (FormConfiguration configuration : Context.getRegisteredComponents(FormConfiguration.class)) {
