@@ -332,4 +332,113 @@ public class FormManager implements ContentManager {
 		CalculationResult result = Context.getService(PatientCalculationService.class).evaluate(patient.getId(), calculation);
 		return ResultUtil.isTrue(result);
 	}
+
+	/**
+	 * function for interacting with o3
+	 */
+
+	/**
+	 * Filters forms for a patient
+	 * @param descriptors
+	 * @param patient
+	 * @return
+	 */
+	protected List<FormDescriptor> filterForms(Collection<FormDescriptor> descriptors, Patient patient) {
+		List<FormDescriptor> filtered = new ArrayList<FormDescriptor>();
+		for (FormDescriptor descriptor : descriptors) {
+			if (!descriptor.isEnabled()) {
+				continue;
+			}
+
+
+			// Filter by patient gender
+			if (patient.getGender() != null) {
+				if (patient.getGender().equals("F") && descriptor.getGender() == Gender.MALE)
+					continue;
+				else if (patient.getGender().equals("M") && descriptor.getGender() == Gender.FEMALE)
+					continue;
+			}
+
+			if (descriptor.getShowIfCalculation() != null && !isPatientEligibleFor(patient, descriptor)) {
+				continue;
+			}
+
+			filtered.add(descriptor);
+		}
+
+		return filtered;
+	}
+
+	/**
+	 * Gets all completed per-visit forms appropriate for the given visit
+	 * @param visit the visit
+	 * @return the form descriptors
+	 */
+	public List<FormDescriptor> getCompletedFormsForVisit(Visit visit) {
+		List<FormDescriptor> completedForms = new ArrayList<FormDescriptor>();
+
+		for (Encounter encounter : visit.getEncounters()) {
+			if (encounter.getForm() != null) {
+				FormDescriptor descriptor = getFormDescriptor(encounter.getForm());
+
+				// Filter by app and ignore forms with no descriptor
+				if (descriptor != null) {
+					completedForms.add(descriptor);
+				}
+			}
+		}
+
+		return completedForms;
+	}
+
+	/**
+	 * Get all uncompleted forms for visit
+	 * @param visit
+	 * @return
+	 */
+	public List<FormDescriptor> getAllUncompletedFormsForVisit(Visit visit) {
+		List<FormDescriptor> uncompletedForms = new ArrayList<FormDescriptor>();
+		Set<Form> completedForms = new HashSet<Form>();
+
+		// Gather up all completed forms
+		if (visit.getEncounters() != null) {
+			for (Encounter encounter : visit.getEncounters()) {
+				if (encounter.getForm() != null && !encounter.isVoided()) {
+					completedForms.add(encounter.getForm());
+				}
+			}
+		}
+
+		// Include only forms that haven't been completed for this visit
+		for (FormDescriptor suitableForms : getAllFormsForVisit(visit)) {
+			if (!completedForms.contains(suitableForms.getTarget())) {
+				uncompletedForms.add(suitableForms);
+			}
+		}
+
+		return uncompletedForms;
+	}
+
+	/**
+	 * Gets all per-visit forms appropriate for the given visit
+	 * @param visit the visit
+	 * @return the form descriptors
+	 */
+	public List<FormDescriptor> getAllFormsForVisit(Visit visit) {
+		Set<FormDescriptor> forms = new TreeSet<FormDescriptor>();
+
+		forms.addAll(commonVisitForms);
+
+		// Consider all programs active on the visit stop date, or if visit is still open, active now
+		Date activeOnDate = (visit.getStopDatetime() != null) ? visit.getStopDatetime() : new Date();
+
+		for (ProgramDescriptor activeProgram : programManager.getPatientActivePrograms(visit.getPatient(), activeOnDate)) {
+			if (activeProgram.getVisitForms() != null) {
+				forms.addAll(activeProgram.getVisitForms());
+			}
+		}
+
+		return filterForms(forms, visit.getPatient());
+	}
+
 }
