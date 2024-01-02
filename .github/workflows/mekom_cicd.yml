@@ -47,6 +47,9 @@ jobs:
           server-id: mks-nexus
           server-username: $MAVEN_USERNAME
           server-password: $MAVEN_TOKEN
+      
+      - name: Navigate to Project Directory
+        run: cd ${{ github.workspace }}
 
       - name: Publish to Mekom repository
         run: mvn -B deploy
