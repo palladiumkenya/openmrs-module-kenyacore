@@ -49,6 +49,16 @@ public class ReportManager implements ContentManager {
 
 	private List<ReportDescriptor> cohortAnalysisReports = new ArrayList<ReportDescriptor>();
 
+	public List<ReportDescriptor> getEhrReports() {
+		return ehrReports;
+	}
+
+	public void setEhrReports(List<ReportDescriptor> ehrReports) {
+		this.ehrReports = ehrReports;
+	}
+
+	private List<ReportDescriptor> ehrReports = new ArrayList<ReportDescriptor>();
+
 	@Autowired
 	private ProgramManager programManager;
 
@@ -92,6 +102,10 @@ public class ReportManager implements ContentManager {
 			//Register cohort analysis reports here
 			if (configuration.getCohortAnalysis() != null) {
 				cohortAnalysisReports.addAll(configuration.getCohortAnalysis());
+			}
+			//Register ehr reports
+			if (configuration.getEhrReports() != null) {
+				ehrReports.addAll(configuration.getEhrReports());
 			}
 
 
