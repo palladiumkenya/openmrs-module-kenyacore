@@ -31,6 +31,16 @@ public class ReportConfiguration extends AbstractContentConfiguration {
 
 	private Set<ReportDescriptor> cohortAnalysis;
 
+	public Set<ReportDescriptor> getEhrReports() {
+		return ehrReports;
+	}
+
+	public void setEhrReports(Set<ReportDescriptor> ehrReports) {
+		this.ehrReports = ehrReports;
+	}
+
+	private Set<ReportDescriptor> ehrReports;
+
 	/**
 	 * Gets the cohort analysis reports
 	 * @return the report descriptors
