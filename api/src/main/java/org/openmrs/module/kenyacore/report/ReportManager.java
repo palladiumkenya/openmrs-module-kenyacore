@@ -49,12 +49,8 @@ public class ReportManager implements ContentManager {
 
 	private List<ReportDescriptor> cohortAnalysisReports = new ArrayList<ReportDescriptor>();
 
-	public List<ReportDescriptor> getEhrReports() {
-		return ehrReports;
-	}
-
-	public void setEhrReports(List<ReportDescriptor> ehrReports) {
-		this.ehrReports = ehrReports;
+	public List<ReportDescriptor> getEhrReports(AppDescriptor app) {
+		return filterReports(ehrReports, app);
 	}
 
 	private List<ReportDescriptor> ehrReports = new ArrayList<ReportDescriptor>();
