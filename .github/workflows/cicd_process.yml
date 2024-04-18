@@ -1,11 +1,11 @@
-name: deploy to prod 8600
+name: Test instance deployments
 on:
   push:
-    branches: [ master ]
+    branches: [ master, 2.x ]
 jobs:
-
   build:
-    name: Deploy
+    name: deploying to 2.x instance
+    if: github.ref == 'refs/heads/2.x'
     runs-on: ubuntu-latest
     steps:
     - name: executing remote connection
@@ -18,19 +18,52 @@ jobs:
         command_timeout: 200m
         script: |
           cd /apps/github-workflows/kenyaemr-modules
-          sudo rm -rf openmrs-module-kenyacore 
-          sudo mkdir  openmrs-module-kenyacore
+          sudo rm -rf openmrs-module-kenyacore
+          sudo mkdir openmrs-module-kenyacore
           sudo chown -R cicd2:cicd2 openmrs-module-kenyacore
-          git config --global --add safe.directory /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyacore     
-          cd openmrs-module-kenyacore
-          git clone -b master https://github.com/palladiumkenya/openmrs-module-kenyacore.git .
+          git config --global --add safe.directory /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyacore
+          cd /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyacore
+          git clone -b 2.x https://github.com/palladiumkenya/openmrs-module-kenyacore.git /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyacore
+          sudo chown -R cicd2:cicd2 /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyacore
           git status
+          mvn license:format
           sudo mvn clean install -DskipTests
           sudo rm -rf /var/lib/OpenMRS/modules/kenyacore-*.omod
-          sudo cp /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyacore/omod/target/kenyacore-*.omod /var/lib/OpenMRS/modules/
+          sudo cp -r /apps/github-workflows/kenyaemr-modules/openmrs-module-kenyacore/omod/target/kenyacore-*.omod /var/lib/OpenMRS/modules/
           sudo chown -R tomcat:tomcat /var/lib/OpenMRS/modules/
           sudo chmod +r /var/lib/OpenMRS/modules/*.omod
           sudo chmod 755 /var/lib/OpenMRS/modules/*.omod
           sudo systemctl stop tomcat
           sudo systemctl start tomcat
-         
+
+  dev_server_deployment:
+    name: deploying to 3.x dev instance
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+    - name: executing remote connection
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.CICD_HOST }}
+        username: ${{ secrets.CICD_USERNAME }}
+        key: ${{ secrets.CICD_SECRET }}
+        port: ${{ secrets.PORT }}
+        command_timeout: 200m
+        script: |
+          cd /apps/githubworkflows/kenyaemr-modules
+          sudo rm -rf openmrs-module-kenyacore
+          sudo mkdir openmrs-module-kenyacore
+          sudo chown -R cicd:cicd openmrs-module-kenyacore
+          git config --global --add safe.directory /apps/githubworkflows/kenyaemr-modules/openmrs-module-kenyacore
+          cd /apps/githubworkflows/kenyaemr-modules/openmrs-module-kenyacore
+          git clone -b master https://github.com/palladiumkenya/openmrs-module-kenyacore.git .
+          git status
+          mvn license:format
+          sudo mvn clean install -DskipTests
+          sudo rm -rf /var/lib/OpenMRS/modules/kenyacore*.omod
+          sudo cp -r /apps/githubworkflows/kenyaemr-modules/openmrs-module-kenyacore/omod/target/kenyacore-*.omod /var/lib/OpenMRS/modules/
+          sudo chown -R tomcat:tomcat /var/lib/OpenMRS/modules/
+          sudo chmod +r /var/lib/OpenMRS/modules/*.omod
+          sudo chmod 755 /var/lib/OpenMRS/modules/*.omod
+          sudo service tomcat9 restart 
+          echo "Done 👍"
