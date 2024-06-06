@@ -63,19 +63,30 @@ public class ETLConfigurationManager implements ContentManager {
 	public synchronized void refresh() {
 
 		String recreateEtlsOnStartupConfig = Context.getAdministrationService().getGlobalProperty("kenyaemr.reacreate_etls_on_startup");
+		String recreateDatatoolsOnStartupConfig = Context.getAdministrationService().getGlobalProperty("kenyaemr.reacreate_datatools_on_startup");
 
 		if (recreateEtlsOnStartupConfig != null && recreateEtlsOnStartupConfig.equalsIgnoreCase("no")) {
 			System.out.println("Skipping recreation of ETL tables. Please set the value of kenyaemr.reacreate_etls_on_startup global property to yes to enable recreation on startup");
 			return;
 		}
-
-		ETLProcedureBuilder procedureBuilder = new ETLProcedureBuilder();
-		procedureBuilder.buildProcedures();
-		procedureBuilder.runDDL();
-		procedureBuilder.runDML();
-		procedureBuilder.runDatatoolProcedures();
-		System.out.println("Completed refreshing ETL extensions ....");
-
+		else{
+			ETLProcedureBuilder procedureBuilder = new ETLProcedureBuilder();
+			procedureBuilder.buildProcedures();
+			procedureBuilder.runDDL();
+			procedureBuilder.runDML();
+			System.out.println("Completed refreshing ETL extensions ....");
+		}
+		System.out.println("------------------------------------------------------------------------------");
+		if (recreateDatatoolsOnStartupConfig != null && recreateDatatoolsOnStartupConfig.equalsIgnoreCase("no")) {
+			System.out.println("Skipping recreation of Datatools tables. Please set the value of kenyaemr.reacreate_datatools_on_startup global property to yes to enable recreation on startup");
+			return;
+		}
+		else{
+			ETLProcedureBuilder procedureBuilder = new ETLProcedureBuilder();
+			procedureBuilder.buildProcedures();
+			procedureBuilder.runDatatoolProcedures();
+			System.out.println("Completed refreshing Datatools extensions ....");
+		}
 		System.out.println("------------------------------------------------------------------------------");
 	}
 
