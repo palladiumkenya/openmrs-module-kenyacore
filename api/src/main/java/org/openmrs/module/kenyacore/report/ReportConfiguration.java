@@ -35,6 +35,16 @@ public class ReportConfiguration extends AbstractContentConfiguration {
 		return ehrReports;
 	}
 
+	public Set<ReportDescriptor> getSpecialClinicsReport() {
+		return specialClinics;
+	}
+
+	public Set<ReportDescriptor> specialClinics;
+
+	public void setSpecialClinics(Set<ReportDescriptor> specialClinics) {
+		this.specialClinics = specialClinics;
+	}
+
 	public void setEhrReports(Set<ReportDescriptor> ehrReports) {
 		this.ehrReports = ehrReports;
 	}
