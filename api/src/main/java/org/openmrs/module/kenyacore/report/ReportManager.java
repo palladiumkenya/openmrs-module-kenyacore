@@ -55,6 +55,12 @@ public class ReportManager implements ContentManager {
 
 	private List<ReportDescriptor> ehrReports = new ArrayList<ReportDescriptor>();
 
+
+	public List<ReportDescriptor> getSpecialClinicsReports(AppDescriptor app) {
+		return filterReports(specialClinics, app);
+	}
+
+	private List<ReportDescriptor> specialClinics = new ArrayList<ReportDescriptor>();
 	@Autowired
 	private ProgramManager programManager;
 
@@ -104,6 +110,10 @@ public class ReportManager implements ContentManager {
 				ehrReports.addAll(configuration.getEhrReports());
 			}
 
+			//Register special clinics reports
+			if (configuration.getSpecialClinicsReport() != null) {
+				specialClinics.addAll(configuration.getSpecialClinicsReport());
+			}
 
 			// Register additional program specific reports
 			if (configuration.getProgramReports() != null) {
