@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>kenyacore</artifactId>
-		<version>3.0.2-SNAPSHOOT</version>
+		<version>3.0.2-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>kenyacore-test</artifactId>
